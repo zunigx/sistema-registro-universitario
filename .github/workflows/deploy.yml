@@ -17,11 +17,25 @@ jobs:
   sonarqube: 
     name: Análisis de Calidad de Código 
     runs-on: ubuntu-latest 
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     steps: 
       - name: Clonación del repositorio (Checkout) 
         uses: actions/checkout@v4 
         with: 
           fetch-depth: 0 
+
+      - name: Instalar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Ejecutar tests y generar cobertura
+        run: npm run test:ci
 
       - name: Validar conectividad con SonarQube
         run: |

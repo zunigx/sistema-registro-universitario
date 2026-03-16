@@ -9,7 +9,7 @@ const path = require('path');
 const app = express();
 
 // Middleware
-app.use(cors());
+app.use(cors({ origin: process.env.ALLOWED_ORIGIN || 'http://localhost:3000' }));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, '.')));
 
@@ -38,7 +38,7 @@ app.post('/api/registro', (req, res) => {
 
     // Simular procesamiento
     setTimeout(() => {
-        const numeroSolicitud = 'SOL-' + Math.random().toString(36).substr(2, 9).toUpperCase();
+        const numeroSolicitud = 'SOL-' + Math.random().toString(36).substring(2, 11).toUpperCase();
         
         const registroGuardado = {
             id: baseDatos.solicitudes.length + 1,
@@ -132,7 +132,8 @@ app.get('/api/verificar-matricula/:matricula', (req, res) => {
 });
 
 // Error handler
-app.use((err, req, res, next) => {
+// eslint-disable-next-line no-unused-vars
+app.use((err, req, res, _next) => {
     console.error('Error:', err);
     res.status(500).json({
         error: 'Error interno del servidor',
@@ -140,7 +141,9 @@ app.use((err, req, res, next) => {
     });
 });
 
-// Iniciar servidor
+// Iniciar servidor solo si no se está importando para tests
+/* istanbul ignore next */
+if (require.main === module) {
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log('═════════════════════════════════════════════');
@@ -156,3 +159,6 @@ app.listen(PORT, () => {
     console.log('  GET  /api/verificar-matricula/:matricula');
     console.log('\n═════════════════════════════════════════════\n');
 });
+}
+
+module.exports = app;
